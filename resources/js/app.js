@@ -3,17 +3,25 @@
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
-
 require('./bootstrap');
 
 window.Vue = require('vue');
 import VueRouter from 'vue-router';
 import Vuetify from 'vuetify';
 import ru from 'vuetify/es5/locale/ru';
-import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
+import '@mdi/font/css/materialdesignicons.css'; // Ensure you are using css-loader
+import { plugin as VueStator } from 'vue-stator';
 
 window.Vue.use(Vuetify);
 window.Vue.use(VueRouter);
+window.Vue.use(VueStator, {
+    state: () => ({
+        user: {},
+        products: {},
+        warehouses: [],
+        warehouseId: null,
+    })
+});
 
 import NotFound from './components/NotFound.vue';
 import ExampleComponent from './components/ExampleComponent.vue';
@@ -22,13 +30,18 @@ import ImageUploadComponent from './components/ImageUploadComponent.vue';
 import OrdersComponent from './components/OrdersComponent.vue';
 import OrderComponent from './components/OrderComponent.vue';
 import ProductsComponent from './components/ProductsComponent.vue';
-
+import ProfileComponent from './components/ProfileComponent.vue';
 import NavbarComponent from './components/NavbarComponent.vue';
+
+import LoginComponent from './components/LoginComponent.vue';
+Vue.component('login', LoginComponent);
+
 Vue.component('nav-bar', NavbarComponent);
 
 const appPath = '/app';
 const routes = [
     { path: appPath + '/', component: ExampleComponent },
+    { path: appPath + '/profile', name: 'profile', component: ProfileComponent },
     { path: appPath + '/task/:id', name: 'task', component: ExampleComponentEdit },
     { path: appPath + '/upload/', component: ImageUploadComponent },
     { path: appPath + '/orders/', name: 'orders', component: OrdersComponent },
@@ -37,19 +50,35 @@ const routes = [
     { path: appPath + '/*', component: NotFound },
 ]
 
-const router = new VueRouter({
-    mode: 'history',
-    routes
-}); 
+const router = new VueRouter({ mode: 'history', routes });
 
 const vuetify = new Vuetify({
-    lang: {
+    /*lang: {
         locales: { ru },
-        current: 'ru'
-    }
+        current: 'ru',
+    },*/
 });
 
+
+Vue.prototype.$userData = {};
+
 const app = new Vue({ router, vuetify }).$mount('#app');
+
+// Get user data
+/*const r = '11';
+axios.get('/api/user')
+.then(function(resp) {
+    if (resp.data.error) {
+        //app.error = resp.data.error;
+    } else {
+        //app.error = null;
+        r = 'resp.data';
+    }
+})
+.catch(function(error) {
+    //app.error = error.message;
+});
+console.log(r);*/
 
 /**
  * The following block of code may be used to automatically register your

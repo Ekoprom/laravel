@@ -13,7 +13,12 @@ return [
     |
     */
 
-    'failed' => 'These credentials do not match our records.',
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-
+    'failed' => 'Пользователь с такой почтой и паролем не найден',
+    'throttle' => 'Слишком много попыток входа. Повторите через :seconds секунд.',
+    'login_title' => 'Вход в кабинет дилера',
+    'email' => 'Почта',
+    'password' => 'Пароль',
+    'remember_me' => 'Запонить меня',
+    'login' => 'Войти',
+    'forgot_passoword' => 'Забыли пароль?',
 ];

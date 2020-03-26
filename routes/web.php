@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+use App\User;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,6 +19,13 @@
 });*/
 
 Auth::routes();
+
+Route::get('/generate', function() {
+    $user = Auth::user();
+    $user->tokens()->delete();
+    $token = $user->createToken('token-name');
+    return $token->plainTextToken;
+});
 
 Route::get('/app/{vue_capture?}', 'HomeController@index')->where('vue_capture', '[\/\w\.-]*');
 

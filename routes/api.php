@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Auth;
+use App\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,9 +18,9 @@ use GuzzleHttp\Client;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
+	return $request->user();
+});*/
 
 Route::apiResources(
 	[
@@ -26,10 +28,33 @@ Route::apiResources(
 	]
 );
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('hello', function(Request $request) {
+		return response()->json($request->user());
+	});
+});
+
 //Route::group(['prefix' => '', 'namespace' => 'Api', 'as' => 'api.', 'middleware' => 'autho:api'], function () {
-Route::group(['prefix' => '', 'namespace' => 'Api', 'as' => 'api.'], function () {
+Route::group(['prefix' => '', 'namespace' => 'Api', 'as' => 'api.', 'middleware' => 'auth:sanctum'], function () {
 	Route::resource('tasks', 'TaskController', ['except' => ['create', 'edit']]);
 	Route::post('image/store', 'ImageController@store');
+
+	Route::get('user', function(Request $request) {
+		return $request->user();
+	});
+
+	Route::get('warehouses', function(Request $request) {
+		$client = new Client(['verify' => false]);
+		
+		try {
+			$res = $client->get(env('APP_1C_API') . 'dealers/warehouses');
+		} catch (Exception $e) {
+			report($e);
+			return response()->json(['error' => $e->getMessage()]);
+		}
+
+		return $res->getBody();
+	});
 
 	// Orders test
 	Route::get('orders', function(Request $request) {
@@ -114,7 +139,7 @@ Route::group(['prefix' => '', 'namespace' => 'Api', 'as' => 'api.'], function ()
 		try {
 			$res = $client->get(env('APP_1C_API') . 'dealers/remains', [
 				'query' => [
-					'stock' => '000000001',
+					'stock' => $request->warehouseId,
 					'arts'   => implode('|', $request->items),
 				]
 			]);

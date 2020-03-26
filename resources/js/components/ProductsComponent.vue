@@ -1,21 +1,35 @@
 <template>
-<v-row justify="center">
-    <v-col md="12">
-        <v-data-table :headers="headers" :items="products" @current-items="getItems" 
-            :items-per-page="itemsPerPage"
-            hide-default-footer
-            :page.sync="page"
-            :custom-filter="filter"
-            @page-count="pageCount = $event">
-            <template v-slot:item.free="{ item }">
-                <v-chip :color="getColor(item.free)" dark>{{ item.free }}</v-chip>
-            </template>
-        </v-data-table>
-        <div class="text-center pt-2">
-            <v-pagination v-model="page" :length="pageCount" :total-visible="7" circle></v-pagination>
-        </div>
-    </v-col>
-</v-row>
+    <v-row justify="center">
+        <v-col class="d-flex" cols="12" sm="6">
+            <v-select
+                label="Склад"
+                :items="warehouses"
+                :loading="!warehouses.length"
+                :disabled="!warehouses.length"
+                v-model="warehouseId"
+                @change="warehouseChange"
+            ></v-select>
+        </v-col>
+        <v-col md="12">
+            <v-data-table 
+                hide-default-footer
+                :headers="headers" 
+                :items="products"
+                :items-per-page="itemsPerPage"
+                :page.sync="page"
+                :loading="!products.length || remainsLoading"
+                @current-items="getItems" 
+                @page-count="pageCount = $event"
+            >
+                <template v-slot:item.free="{ item }">
+                    <v-chip :color="getColor(item.free)" dark>{{ item.free }}</v-chip>
+                </template>
+            </v-data-table>
+            <div class="text-center pt-2">
+                <v-pagination v-model="page" :length="pageCount" :total-visible="7" circle></v-pagination>
+            </div>
+        </v-col>
+    </v-row>
 </template>
 
 <script>
@@ -24,9 +38,14 @@
             return {
                 error: null,
                 loading: true,
+                remainsLoading: false,
                 categories: [],
                 products: [],
-
+                cities: [],
+                warehouses: [],
+                warehouseId: null,
+                currentItems: [],
+                
                 page: 1,
                 pageCount: 0,
                 itemsPerPage: 15,
@@ -41,22 +60,25 @@
         },
 
         methods: {
-            activeCategoty(cat) {
-                console.log(cat);
+            warehouseChange(id) {
+                const app = this;
+                
+                app.products.forEach(element => {
+                    element.free = null;
+                    element.reserve = null;
+                    element.quantity = null;
+                })
+                app.warehouseId = id;
+                app.updateItems(app.currentItems);
             },
 
-            filter(value, search, item) {
-                console.log('ggggg');
-                /*return value != null &&
-                search != null &&
-                typeof value === 'string' &&
-                value.toString().toLocaleUpperCase().indexOf(search) !== -1*/
-                return true;
-            },
+            updateItems(items) {
+                const app = this;
+                
+                if (!items.length || !app.warehouseId) return;
 
-            getItems(items) {
-                if (!items.length) return
-                const data = { items: [] };
+                app.remainsLoading = true;
+                const data = { items: [], warehouseId: app.warehouseId };
                 items.forEach(element => {
                     data.items.push(element.article);
                 });
@@ -67,7 +89,6 @@
                             app.error = resp.data.error;
                         } else {
                             app.error = null;
-                            
                             resp.data.remains.forEach(element => {
                                 const article = String(element.art);
                                 let item = (items.find(el => el.article == article));
@@ -77,11 +98,18 @@
                                     item.reserve = element.reserve;
                                 }
                             });
+                            app.remainsLoading = false;
                         }
                     })
                     .catch(function(error) {
                         app.error = error.message;
                     });
+            },
+
+            getItems(items) {
+                const app = this;
+                app.currentItems = items;
+                app.updateItems(app.currentItems);
             },
 
             getColor (num) {
@@ -95,10 +123,7 @@
         mounted() {
             const app = this;
 
-            const data = {
-            }
-
-            axios.get('/api/products', { params: data })
+            axios.get('/api/products', { params: {} })
                 .then(function(resp) {
                     if (resp.data.error) {
                         app.error = resp.data.error;
@@ -111,6 +136,43 @@
                 .catch(function(error) {
                     app.error = error.message;
                 });
-        }
+
+            app.warehouseId = app.$state.warehouseId;
+            app.warehouses = app.$state.warehouses;
+            if (!app.warehouses.length) {
+                axios.get('/api/warehouses')
+                .then(function(resp) {
+                    if (resp.data.error) {
+                        app.error = resp.data.error;
+                    } else {
+                        app.error = null;
+                        const warehousesData = resp.data.warehouses;
+
+                        warehousesData.forEach(city => {
+                            city.warehouses.forEach(item => {
+                                app.warehouses.push({
+                                    text: city.name + ' - ' + item.name,
+                                    value: item.id,
+                                });
+                            });
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    app.error = error.message;
+                });
+            }
+        },
+
+        watch: {
+            warehouses(newData) {
+                const app = this;
+                app.$state.warehouses = newData;
+            },
+            warehouseId(newData) {
+                const app = this;
+                app.$state.warehouseId = newData;
+            }            
+        }        
     }
 </script>

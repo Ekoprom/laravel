@@ -20,7 +20,7 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
+    <div id="app" props-test="test">
     <v-app>
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm" style="display: none">
             <div class="container">

@@ -1,39 +1,24 @@
 <template>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-9">
-                <h5>Заказ {{ orderNumber }} от {{ orderDate }}</h5>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-md-9 mt-4" v-if="error">
-                <div class="alert alert-danger" role="alert">{{ error }}</div>
-            </div>
-
-            <div class="col-md-9 mt-4">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Артикул</th>
-                            <th scope="col">Наименование</th>
-                            <th scope="col">Количество</th>
-                            <th scope="col">Цена</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item in order" v-bind:key="item">
-                            <th scope="row">{{ item.art }}</th>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>{{ item.price }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-    </div>
+    <v-simple-table>
+        <template v-slot:default>
+            <thead>
+                <tr>
+                    <th class="text-left">Артикул</th>
+                    <th class="text-left">Наименование</th>
+                    <th class="text-left">Количество</th>
+                    <th class="text-left">Цена</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in order" :key="item.name">
+                    <td>{{ item.art }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }}</td>
+                </tr>
+            </tbody>
+        </template>
+    </v-simple-table>
 </template>
 
 <script>

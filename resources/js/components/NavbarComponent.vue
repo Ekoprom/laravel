@@ -1,12 +1,12 @@
 <template>
     <v-navigation-drawer
-      absolute
+        absolute
       permanent
     >
       <template v-slot:prepend>
         <v-list-item two-line>
           <v-list-item-content>
-            <v-list-item-title>{{ propUser }}</v-list-item-title>
+            <v-list-item-title>{{ $userData.name }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -24,6 +24,12 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+        <template v-slot:append>
+            <div class="pa-2">
+                <v-btn block v-on:click="logout()">Выйти</v-btn>
+            </div>
+        </template>
     </v-navigation-drawer>
 </template>
 
@@ -32,6 +38,7 @@
         data () {
             return {
                 items: [
+                    { title: 'Мой профиль', icon: 'mdi-home-city', link: 'profile' },
                     { title: 'Заказы', icon: 'mdi-home-city', link: 'orders' },
                     { title: 'Остатки', icon: 'mdi-account', link: 'products' },
                 ],
@@ -42,5 +49,12 @@
 
         mounted() {
         },
+
+        methods: {
+            logout() {
+                axios.post('/logout');
+                window.location = '/';
+            }
+        }
     }
 </script>

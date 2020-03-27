@@ -41,7 +41,12 @@ class LoginController extends Controller
 
     protected  function authenticated(Request $request, $user)
     {
-       //
-       return(' Login Successful!');
+        if ($request->ajax()){
+            return response()->json([
+                'auth' => auth()->check(),
+                //'user' => $user,
+                //'intended' => $this->redirectPath(),
+            ]);
+        }
     }    
 }

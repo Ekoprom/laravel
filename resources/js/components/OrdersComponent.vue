@@ -69,6 +69,7 @@
 
 <script>
     import moment from 'moment';
+    import { mapActions } from 'vuex';
     
     export default {
         data: function() {
@@ -145,7 +146,8 @@
                         app.error = error.message;
                         app.loading = false;
                     });
-            }
+            },
+            mapActions(['showError']),
         }
     }
 </script>

@@ -3,7 +3,7 @@
 @section('content')
 <v-row>
     <v-col md="2">
-        <nav-bar></nav-bar>
+        <navbar-component></navbar-component>
     </v-col>
     <v-col md="9">
         <router-view></router-view>

@@ -11,6 +11,7 @@ import Vuetify from 'vuetify';
 import ru from 'vuetify/es5/locale/ru';
 import '@mdi/font/css/materialdesignicons.css'; // Ensure you are using css-loader
 import { plugin as VueStator } from 'vue-stator';
+import store from './store';
 
 window.Vue.use(Vuetify);
 window.Vue.use(VueRouter);
@@ -32,11 +33,12 @@ import OrderComponent from './components/OrderComponent.vue';
 import ProductsComponent from './components/ProductsComponent.vue';
 import ProfileComponent from './components/ProfileComponent.vue';
 import NavbarComponent from './components/NavbarComponent.vue';
-
 import LoginComponent from './components/LoginComponent.vue';
-Vue.component('login', LoginComponent);
+import ErrorComponent from './components/ErrorComponent.vue';
 
-Vue.component('nav-bar', NavbarComponent);
+Vue.component('navbar-component', NavbarComponent);
+Vue.component('login-component', LoginComponent);
+Vue.component('error-component', ErrorComponent);
 
 const appPath = '/app';
 const routes = [
@@ -59,26 +61,13 @@ const vuetify = new Vuetify({
     },*/
 });
 
-
 Vue.prototype.$userData = {};
 
-const app = new Vue({ router, vuetify }).$mount('#app');
+Vue.prototype.$error = function() {
+    this.$refs.errorModal.isActive = true;
+};
 
-// Get user data
-/*const r = '11';
-axios.get('/api/user')
-.then(function(resp) {
-    if (resp.data.error) {
-        //app.error = resp.data.error;
-    } else {
-        //app.error = null;
-        r = 'resp.data';
-    }
-})
-.catch(function(error) {
-    //app.error = error.message;
-});
-console.log(r);*/
+const app = new Vue({ router, vuetify, store }).$mount('#app');
 
 /**
  * The following block of code may be used to automatically register your
